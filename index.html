@@ -67,6 +67,9 @@
     .formulario textarea {
       height: 90px;  /* Reducción de altura para el campo de observaciones */
       resize: vertical;
+      margin-right: 0; /* Eliminar margen derecho */
+      padding-right: 2%; /* Ajustar el espacio interno si es necesario */
+      box-sizing: border-box; /* Asegura que el padding no extienda el ancho */
     }
 
     .formulario button {
@@ -103,11 +106,6 @@
       /* Colocar el botón debajo del mapa en pantallas pequeñas */
       #llevarmeUbicacion {
         margin-top: 10px; /* Espacio adicional entre el mapa y el botón */
-      }
-
-      /* Reducir margen derecho en el campo de observaciones */
-      .formulario textarea {
-        margin-right: 0%; /* Eliminar margen derecho extra */
       }
     }
 
