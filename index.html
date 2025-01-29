@@ -4,48 +4,46 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Formulario con Mapa</title>
-  <!-- Agregar Leaflet CSS y JS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
+    /* Reset de margenes y paddings */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #f0f8ff;
       margin: 0;
       padding: 20px;
-      box-sizing: border-box;
     }
 
     .container {
       display: flex;
       flex-direction: column;
-      max-width: 1200px;
+      max-width: 100%;
       width: 100%;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       background-color: white;
       margin: auto;
+      overflow: hidden; /* Evitar desbordamientos */
     }
 
     #map {
       width: 100%;
-      height: 400px; /* Altura por defecto */
+      height: 400px;
       border-radius: 10px 10px 0 0;
-      min-height: 300px; /* Altura mínima en pantallas pequeñas */
     }
 
     .formulario {
       width: 100%;
-      padding: 4% 0%;  /* Ajuste de padding para evitar el desbordamiento */
+      padding: 20px;
       background-color: #e0f7fa;
       border-radius: 0 0 10px 10px;
-    }
-
-    .formulario h2 {
-      color: #00838f;
-      text-align: center;
-      margin-bottom: 20px;
-      font-size: 14px; /* Tamaño de letra más pequeño */
     }
 
     .formulario label {
@@ -53,30 +51,25 @@
       color: #00796b;
     }
 
-    .formulario select,
     .formulario input,
     .formulario textarea,
+    .formulario select,
     .formulario button {
       width: 100%;
       padding: 8px;
       margin: 8px 0;
       border: 1px solid #00796b;
       border-radius: 4px;
+      box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
     }
 
     .formulario textarea {
-      height: 90px;  /* Reducción de altura para el campo de observaciones */
-      resize: vertical;
-      margin-right: 0; /* Eliminar margen derecho */
-      padding-right: 2%; /* Ajustar el espacio interno si es necesario */
-      box-sizing: border-box; /* Asegura que el padding no extienda el ancho */
+      height: 120px;
     }
 
     .formulario button {
       background-color: #00838f;
       color: white;
-      border: none;
-      font-size: 16px;
       cursor: pointer;
     }
 
@@ -84,121 +77,129 @@
       background-color: #004d40;
     }
 
-    .formulario input[readonly] {
-      background-color: #b2dfdb;
+    .image-preview {
+      display: none;
+      margin-top: 10px;
+      max-width: 100%;
     }
 
-    /* Responsividad para pantallas pequeñas */
-    @media (max-width: 768px) {
+    /* Hacer que el formulario se ajuste mejor a pantallas pequeñas */
+    @media (max-width: 600px) {
       .container {
-        flex-direction: column;
+        padding: 10px;
       }
 
       #map {
-        height: 300px; /* El mapa reduce su altura en dispositivos pequeños */
-        min-height: 200px; /* Asegura que siempre tenga una altura mínima */
+        height: 300px;
       }
 
       .formulario {
-        padding: 0% 2%;  /* Ajuste de padding en pantallas pequeñas */
+        padding: 15px;
       }
 
-      /* Colocar el botón debajo del mapa en pantallas pequeñas */
-      #llevarmeUbicacion {
-        margin-top: 10px; /* Espacio adicional entre el mapa y el botón */
+      .formulario input,
+      .formulario select,
+      .formulario button {
+        padding: 10px;
+        margin: 10px 0;
       }
-    }
-
-    /* Hacer latitud y longitud invisibles */
-    #latitud, #longitud {
-      display: none;
-    }
-
-    /* Eliminar etiquetas de latitud y longitud */
-    label[for="latitud"], label[for="longitud"] {
-      display: none;
-    }
-
-    /* Colocar el botón debajo del mapa */
-    #llevarmeUbicacion {
-      margin-top: 20px;
     }
   </style>
 </head>
 <body>
 
   <div class="container">
-    <div id="map"></div> <!-- Aquí se cargará el mapa -->
-
-    <!-- Botón para llevar a la ubicación actual -->
-    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
+    <div id="map"></div>
 
     <form class="formulario" id="formulario">
       <h2>Formulario de Ubicación</h2>
-
-      <label for="claseIncidente">Seleccione Clase de Incidente:</label>
-      <select id="claseIncidente" name="claseIncidente" required>
+      <label for="incidente">Seleccione Clase de Incidente:</label>
+      <select id="incidente" name="incidente" required>
         <option value="">Seleccione...</option>
         <option value="Basural">Basural</option>
         <option value="Auto Quemado">Auto Quemado</option>
         <option value="Vandalismo">Vandalismo</option>
+        <option value="Punto Inseguro">Punto Inseguro</option>
+        <option value="Luminaria">Luminaria</option>
+        <option value="Poda de Arboles">Poda de Arboles</option>
       </select>
 
-      <!-- Campos para latitud y longitud (invisibles) -->
-      <input type="text" id="latitud" name="latitud" readonly>
-      <input type="text" id="longitud" name="longitud" readonly>
+      <!-- Campo oculto que almacenará el valor del incidente -->
+      <input type="hidden" id="incidenteHidden" name="Incidente">
 
-      <!-- Campo de Observaciones -->
+      <label for="latitud" style="display: none;">Latitud</label>
+      <input type="text" id="latitud" name="latitud" readonly style="display: none;">
+
+      <label for="longitud" style="display: none;">Longitud</label>
+      <input type="text" id="longitud" name="longitud" readonly style="display: none;">
+
       <label for="observaciones">Observaciones</label>
-      <textarea id="observaciones" name="observaciones" placeholder="Escribe aquí detalles adicionales..." required></textarea>
+      <textarea id="observaciones" name="observaciones" required></textarea>
+
+      <label for="foto">Adjuntar Foto</label>
+      <input type="file" id="foto" name="foto" accept="image/*">
+      <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
 
       <button type="submit">Enviar</button>
     </form>
+
+    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
   </div>
 
   <script>
-    // Crear el mapa de Leaflet
-    var map = L.map('map').setView([-34.945410788228784, -57.97428572760069], 13); // Coordenadas de inicio, puedes cambiarlas.
-
-    // Agregar el mapa de tiles (OpenStreetMap)
+    var map = L.map('map').setView([-34.945410788228784, -57.97428572760069], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+      attribution: '&copy; OpenStreetMap contributors'
     }).addTo(map);
 
-    // Crear un marcador y guardar las coordenadas
     var marker;
-
-    // Función para capturar el clic en el mapa y actualizar las coordenadas
     map.on('click', function(e) {
       if (marker) {
-        marker.setLatLng(e.latlng); // Mueve el marcador
+        marker.setLatLng(e.latlng);
       } else {
-        marker = L.marker(e.latlng).addTo(map); // Coloca el marcador en el primer clic
+        marker = L.marker(e.latlng).addTo(map);
       }
-
-      // Actualiza los campos de latitud y longitud en el formulario
       document.getElementById('latitud').value = e.latlng.lat;
       document.getElementById('longitud').value = e.latlng.lng;
     });
 
-    // Asegurarse de que los campos de coordenadas se actualicen al enviar el formulario
-    document.getElementById('formulario').addEventListener('submit', function(event) {
-      event.preventDefault(); // Evita el envío por defecto
+    // Evento para actualizar el campo oculto con la selección del menú desplegable
+    document.getElementById('incidente').addEventListener('change', function() {
+      var selectedValue = this.value;
+      document.getElementById('incidenteHidden').value = selectedValue; // Actualizamos el campo oculto
+    });
 
-      var lat = document.getElementById('latitud').value;
-      var lng = document.getElementById('longitud').value;
-      var claseIncidente = document.getElementById('claseIncidente').value;
+    document.getElementById('formulario').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      // Obtener valores del formulario
+      var incidente = document.getElementById('incidenteHidden').value; // Usamos el campo oculto
+      var latitud = document.getElementById('latitud').value;
+      var longitud = document.getElementById('longitud').value;
       var observaciones = document.getElementById('observaciones').value;
 
-      // Recoger los datos del formulario
+      // Validar que todos los campos estén llenos
+      if (!incidente || !latitud || !longitud || !observaciones) {
+        alert('Por favor, complete todos los campos antes de enviar.');
+        return;
+      }
+
+      // Imprimir valores en consola para diagnóstico
+      console.log('Valor de Incidente:', incidente);
+      console.log('Valor de Latitud:', latitud);
+      console.log('Valor de Longitud:', longitud);
+      console.log('Valor de Observaciones:', observaciones);
+
       var data = {
-        claseIncidente: claseIncidente,
-        latitud: lat,
-        longitud: lng,
-        observaciones: observaciones
+        "Incidente": incidente,  // Asegúrate de que el nombre sea el mismo que en tu hoja de Google Sheets
+        "Latitud": latitud,
+        "Longitud": longitud,
+        "Observaciones": observaciones
       };
 
-      // Enviar los datos a Google Sheets (o cualquier otra base de datos)
+      // Diagnóstico: Ver qué se está enviando
+      console.log('Enviando datos:', data);
+
       fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
         method: 'POST',
         headers: {
@@ -207,32 +208,27 @@
         body: JSON.stringify(data)
       })
       .then(response => response.json())
-      .then(data => {
+      .then(responseData => {
+        console.log('Respuesta de SheetBest:', responseData); 
         alert('Datos enviados con éxito');
       })
       .catch(error => {
-        console.error('Error:', error);
+        console.error('Error al enviar los datos:', error);
+        alert('Hubo un error al enviar los datos.');
       });
     });
 
-    // Función para obtener la ubicación actual
     function obtenerUbicacion() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
           var lat = position.coords.latitude;
           var lng = position.coords.longitude;
-
-          // Mover el mapa a la ubicación actual
           map.setView([lat, lng], 13);
-
-          // Colocar un marcador en la ubicación actual
           if (marker) {
             marker.setLatLng([lat, lng]);
           } else {
             marker = L.marker([lat, lng]).addTo(map);
           }
-
-          // Actualizar los campos de latitud y longitud
           document.getElementById('latitud').value = lat;
           document.getElementById('longitud').value = lng;
         });
@@ -240,6 +236,16 @@
         alert('Geolocalización no está soportada en este navegador.');
       }
     }
+
+    document.getElementById('foto').addEventListener('change', function(event) {
+      var reader = new FileReader();
+      reader.onload = function() {
+        var imagePreview = document.getElementById('imagePreview');
+        imagePreview.src = reader.result;
+        imagePreview.style.display = 'block';
+      };
+      reader.readAsDataURL(event.target.files[0]);
+    });
   </script>
 
 </body>
