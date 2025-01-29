@@ -31,7 +31,7 @@
       background-color: white;
       margin: auto;
       overflow: hidden;
-      align-items: center; /* Centra el contenido en el contenedor */
+      align-items: center;
     }
 
     #map {
@@ -45,6 +45,12 @@
       padding: 20px;
       background-color: #e0f7fa;
       border-radius: 0 0 10px 10px;
+    }
+
+    .formulario h2 {
+      font-size: 18px; /* Tamaño de letra reducido */
+      color: #00796b;
+      margin-bottom: 15px;
     }
 
     .formulario label {
@@ -107,8 +113,8 @@
     }
 
     #llevarmeUbicacion {
-      margin-top: 12px; /* Asegura espacio entre el mapa y el botón */
-      width: auto; /* Ajusta el ancho del botón */
+      margin-top: 10px;
+      width: auto;
     }
   </style>
 </head>
@@ -132,7 +138,6 @@
         <option value="Poda de Arboles">Poda de Arboles</option>
       </select>
 
-      <!-- Campo oculto que almacenará el valor del incidente -->
       <input type="hidden" id="incidenteHidden" name="Incidente">
 
       <label for="latitud" style="display: none;">Latitud</label>
@@ -169,42 +174,30 @@
       document.getElementById('longitud').value = e.latlng.lng;
     });
 
-    // Evento para actualizar el campo oculto con la selección del menú desplegable
     document.getElementById('incidente').addEventListener('change', function() {
       var selectedValue = this.value;
-      document.getElementById('incidenteHidden').value = selectedValue; // Actualizamos el campo oculto
+      document.getElementById('incidenteHidden').value = selectedValue;
     });
 
     document.getElementById('formulario').addEventListener('submit', function(event) {
       event.preventDefault();
 
-      // Obtener valores del formulario
-      var incidente = document.getElementById('incidenteHidden').value; // Usamos el campo oculto
+      var incidente = document.getElementById('incidenteHidden').value;
       var latitud = document.getElementById('latitud').value;
       var longitud = document.getElementById('longitud').value;
       var observaciones = document.getElementById('observaciones').value;
 
-      // Validar que todos los campos estén llenos
       if (!incidente || !latitud || !longitud || !observaciones) {
         alert('Por favor, complete todos los campos antes de enviar.');
         return;
       }
 
-      // Imprimir valores en consola para diagnóstico
-      console.log('Valor de Incidente:', incidente);
-      console.log('Valor de Latitud:', latitud);
-      console.log('Valor de Longitud:', longitud);
-      console.log('Valor de Observaciones:', observaciones);
-
       var data = {
-        "Incidente": incidente,  // Asegúrate de que el nombre sea el mismo que en tu hoja de Google Sheets
+        "Incidente": incidente,
         "Latitud": latitud,
         "Longitud": longitud,
         "Observaciones": observaciones
       };
-
-      // Diagnóstico: Ver qué se está enviando
-      console.log('Enviando datos:', data);
 
       fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
         method: 'POST',
@@ -215,11 +208,9 @@
       })
       .then(response => response.json())
       .then(responseData => {
-        console.log('Respuesta de SheetBest:', responseData); 
         alert('Datos enviados con éxito');
       })
       .catch(error => {
-        console.error('Error al enviar los datos:', error);
         alert('Hubo un error al enviar los datos.');
       });
     });
