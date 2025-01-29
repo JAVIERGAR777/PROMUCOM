@@ -36,7 +36,7 @@
 
     .formulario {
       width: 100%;
-      padding: 5% 3%;  /* Padding ajustable en % */
+      padding: 4% 2%;  /* Ajuste de padding para evitar el desbordamiento */
       background-color: #e0f7fa;
       border-radius: 0 0 10px 10px;
     }
@@ -96,7 +96,7 @@
       }
 
       .formulario {
-        padding: 4% 2%;  /* Ajuste de padding para pantallas pequeñas */
+        padding: 3% 2%;  /* Ajuste de padding en pantallas pequeñas */
       }
 
       /* Colocar el botón debajo del mapa en pantallas pequeñas */
@@ -112,6 +112,11 @@
 
     /* Hacer latitud y longitud invisibles */
     #latitud, #longitud {
+      display: none;
+    }
+
+    /* Eliminar etiquetas de latitud y longitud */
+    label[for="latitud"], label[for="longitud"] {
       display: none;
     }
   </style>
@@ -135,11 +140,8 @@
         <option value="Vandalismo">Vandalismo</option>
       </select>
 
-      <!-- Campos para latitud y longitud -->
-      <label for="latitud">Latitud</label>
+      <!-- Campos para latitud y longitud (invisibles) -->
       <input type="text" id="latitud" name="latitud" readonly>
-
-      <label for="longitud">Longitud</label>
       <input type="text" id="longitud" name="longitud" readonly>
 
       <!-- Campo de Observaciones -->
