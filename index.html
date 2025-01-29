@@ -7,17 +7,18 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
+    /* Reset de margenes y paddings */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
       font-family: Arial, sans-serif;
       background-color: #f0f8ff;
       margin: 0;
       padding: 20px;
-      box-sizing: border-box;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      height: 100vh;
-      flex-direction: column;
     }
 
     .container {
@@ -28,6 +29,8 @@
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       background-color: white;
+      margin: auto;
+      overflow: hidden; /* Evitar desbordamientos */
     }
 
     #map {
@@ -57,6 +60,7 @@
       margin: 8px 0;
       border: 1px solid #00796b;
       border-radius: 4px;
+      box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
     }
 
     .formulario textarea {
@@ -79,25 +83,26 @@
       max-width: 100%;
     }
 
-    /* Hacer invisible el campo de foto */
-    #foto {
-      display: none;
-    }
-
-    /* Asegurar que el formulario se vea bien en móviles */
+    /* Hacer que el formulario se ajuste mejor a pantallas pequeñas */
     @media (max-width: 600px) {
       .container {
         padding: 10px;
       }
 
+      #map {
+        height: 300px;
+      }
+
       .formulario {
         padding: 15px;
       }
-    }
 
-    /* Mover el botón abajo del mapa */
-    #llevarmeUbicacion {
-      margin-top: 20px;
+      .formulario input,
+      .formulario select,
+      .formulario button {
+        padding: 10px;
+        margin: 10px 0;
+      }
     }
   </style>
 </head>
@@ -108,8 +113,8 @@
 
     <form class="formulario" id="formulario">
       <h2>Formulario de Ubicación</h2>
-      <label for="claseIncidente">Seleccione Clase de Incidente:</label>
-      <select id="claseIncidente" name="claseIncidente" required>
+      <label for="incidente">Seleccione Clase de Incidente:</label>
+      <select id="incidente" name="incidente" required>
         <option value="">Seleccione...</option>
         <option value="Basural">Basural</option>
         <option value="Auto Quemado">Auto Quemado</option>
@@ -119,16 +124,18 @@
         <option value="Poda de Arboles">Poda de Arboles</option>
       </select>
 
-      <label for="latitud">Latitud</label>
-      <input type="text" id="latitud" name="latitud" readonly>
+      <!-- Campo oculto que almacenará el valor del incidente -->
+      <input type="hidden" id="incidenteHidden" name="Incidente">
 
-      <label for="longitud">Longitud</label>
-      <input type="text" id="longitud" name="longitud" readonly>
+      <label for="latitud" style="display: none;">Latitud</label>
+      <input type="text" id="latitud" name="latitud" readonly style="display: none;">
+
+      <label for="longitud" style="display: none;">Longitud</label>
+      <input type="text" id="longitud" name="longitud" readonly style="display: none;">
 
       <label for="observaciones">Observaciones</label>
       <textarea id="observaciones" name="observaciones" required></textarea>
 
-      <!-- Campo de foto oculto -->
       <label for="foto">Adjuntar Foto</label>
       <input type="file" id="foto" name="foto" accept="image/*">
       <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
@@ -156,27 +163,42 @@
       document.getElementById('longitud').value = e.latlng.lng;
     });
 
+    // Evento para actualizar el campo oculto con la selección del menú desplegable
+    document.getElementById('incidente').addEventListener('change', function() {
+      var selectedValue = this.value;
+      document.getElementById('incidenteHidden').value = selectedValue; // Actualizamos el campo oculto
+    });
+
     document.getElementById('formulario').addEventListener('submit', function(event) {
       event.preventDefault();
 
       // Obtener valores del formulario
-      var claseIncidente = document.getElementById('claseIncidente').value;
+      var incidente = document.getElementById('incidenteHidden').value; // Usamos el campo oculto
       var latitud = document.getElementById('latitud').value;
       var longitud = document.getElementById('longitud').value;
       var observaciones = document.getElementById('observaciones').value;
 
       // Validar que todos los campos estén llenos
-      if (!claseIncidente || !latitud || !longitud || !observaciones) {
+      if (!incidente || !latitud || !longitud || !observaciones) {
         alert('Por favor, complete todos los campos antes de enviar.');
         return;
       }
 
+      // Imprimir valores en consola para diagnóstico
+      console.log('Valor de Incidente:', incidente);
+      console.log('Valor de Latitud:', latitud);
+      console.log('Valor de Longitud:', longitud);
+      console.log('Valor de Observaciones:', observaciones);
+
       var data = {
-        "Clase de Incidente": claseIncidente,
+        "Incidente": incidente,  // Asegúrate de que el nombre sea el mismo que en tu hoja de Google Sheets
         "Latitud": latitud,
         "Longitud": longitud,
         "Observaciones": observaciones
       };
+
+      // Diagnóstico: Ver qué se está enviando
+      console.log('Enviando datos:', data);
 
       fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
         method: 'POST',
