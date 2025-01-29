@@ -30,7 +30,8 @@
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       background-color: white;
       margin: auto;
-      overflow: hidden; /* Evitar desbordamientos */
+      overflow: hidden;
+      align-items: center; /* Centra el contenido en el contenedor */
     }
 
     #map {
@@ -60,7 +61,7 @@
       margin: 8px 0;
       border: 1px solid #00796b;
       border-radius: 4px;
-      box-sizing: border-box; /* Asegura que el padding no afecte el tamaño */
+      box-sizing: border-box;
     }
 
     .formulario textarea {
@@ -104,12 +105,19 @@
         margin: 10px 0;
       }
     }
+
+    #llevarmeUbicacion {
+      margin-top: 10px; /* Asegura espacio entre el mapa y el botón */
+      width: auto; /* Ajusta el ancho del botón */
+    }
   </style>
 </head>
 <body>
 
   <div class="container">
     <div id="map"></div>
+
+    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
 
     <form class="formulario" id="formulario">
       <h2>Formulario de Ubicación</h2>
@@ -142,8 +150,6 @@
 
       <button type="submit">Enviar</button>
     </form>
-
-    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
   </div>
 
   <script>
