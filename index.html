@@ -13,17 +13,21 @@
       margin: 0;
       padding: 20px;
       box-sizing: border-box;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      flex-direction: column;
     }
 
     .container {
       display: flex;
       flex-direction: column;
-      max-width: 1200px;
+      max-width: 100%;
       width: 100%;
       border-radius: 10px;
       box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
       background-color: white;
-      margin: auto;
     }
 
     #map {
@@ -74,6 +78,27 @@
       margin-top: 10px;
       max-width: 100%;
     }
+
+    /* Hacer invisible el campo de foto */
+    #foto {
+      display: none;
+    }
+
+    /* Asegurar que el formulario se vea bien en móviles */
+    @media (max-width: 600px) {
+      .container {
+        padding: 10px;
+      }
+
+      .formulario {
+        padding: 15px;
+      }
+    }
+
+    /* Mover el botón abajo del mapa */
+    #llevarmeUbicacion {
+      margin-top: 20px;
+    }
   </style>
 </head>
 <body>
@@ -83,8 +108,8 @@
 
     <form class="formulario" id="formulario">
       <h2>Formulario de Ubicación</h2>
-      <label for="incidente">Seleccione Clase de Incidente:</label>
-      <select id="incidente" name="incidente" required>
+      <label for="claseIncidente">Seleccione Clase de Incidente:</label>
+      <select id="claseIncidente" name="claseIncidente" required>
         <option value="">Seleccione...</option>
         <option value="Basural">Basural</option>
         <option value="Auto Quemado">Auto Quemado</option>
@@ -93,9 +118,6 @@
         <option value="Luminaria">Luminaria</option>
         <option value="Poda de Arboles">Poda de Arboles</option>
       </select>
-
-      <!-- Campo oculto que almacenará el valor del incidente -->
-      <input type="hidden" id="incidenteHidden" name="Incidente">
 
       <label for="latitud">Latitud</label>
       <input type="text" id="latitud" name="latitud" readonly>
@@ -106,6 +128,7 @@
       <label for="observaciones">Observaciones</label>
       <textarea id="observaciones" name="observaciones" required></textarea>
 
+      <!-- Campo de foto oculto -->
       <label for="foto">Adjuntar Foto</label>
       <input type="file" id="foto" name="foto" accept="image/*">
       <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
@@ -133,42 +156,27 @@
       document.getElementById('longitud').value = e.latlng.lng;
     });
 
-    // Evento para actualizar el campo oculto con la selección del menú desplegable
-    document.getElementById('incidente').addEventListener('change', function() {
-      var selectedValue = this.value;
-      document.getElementById('incidenteHidden').value = selectedValue; // Actualizamos el campo oculto
-    });
-
     document.getElementById('formulario').addEventListener('submit', function(event) {
       event.preventDefault();
 
       // Obtener valores del formulario
-      var incidente = document.getElementById('incidenteHidden').value; // Usamos el campo oculto
+      var claseIncidente = document.getElementById('claseIncidente').value;
       var latitud = document.getElementById('latitud').value;
       var longitud = document.getElementById('longitud').value;
       var observaciones = document.getElementById('observaciones').value;
 
       // Validar que todos los campos estén llenos
-      if (!incidente || !latitud || !longitud || !observaciones) {
+      if (!claseIncidente || !latitud || !longitud || !observaciones) {
         alert('Por favor, complete todos los campos antes de enviar.');
         return;
       }
 
-      // Imprimir valores en consola para diagnóstico
-      console.log('Valor de Incidente:', incidente);
-      console.log('Valor de Latitud:', latitud);
-      console.log('Valor de Longitud:', longitud);
-      console.log('Valor de Observaciones:', observaciones);
-
       var data = {
-        "Incidente": incidente,  // Asegúrate de que el nombre sea el mismo que en tu hoja de Google Sheets
+        "Clase de Incidente": claseIncidente,
         "Latitud": latitud,
         "Longitud": longitud,
         "Observaciones": observaciones
       };
-
-      // Diagnóstico: Ver qué se está enviando
-      console.log('Enviando datos:', data);
 
       fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
         method: 'POST',
