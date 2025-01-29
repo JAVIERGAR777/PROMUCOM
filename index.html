@@ -29,8 +29,9 @@
 
     #map {
       width: 100%;
-      height: 400px;
+      height: 400px; /* Altura por defecto */
       border-radius: 10px 10px 0 0;
+      min-height: 300px; /* Altura mínima en pantallas pequeñas */
     }
 
     .formulario {
@@ -90,11 +91,17 @@
       }
 
       #map {
-        height: 300px;
+        height: 300px; /* El mapa reduce su altura en dispositivos pequeños */
+        min-height: 200px; /* Asegura que siempre tenga una altura mínima */
       }
 
       .formulario {
         padding: 4% 2%;  /* Ajuste de padding para pantallas pequeñas */
+      }
+
+      /* Colocar el botón debajo del mapa en pantallas pequeñas */
+      #llevarmeUbicacion {
+        margin-top: 10px; /* Espacio adicional entre el mapa y el botón */
       }
     }
   </style>
@@ -103,6 +110,9 @@
 
   <div class="container">
     <div id="map"></div> <!-- Aquí se cargará el mapa -->
+
+    <!-- Botón para llevar a la ubicación actual -->
+    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
 
     <form class="formulario" id="formulario">
       <h2>Formulario de Ubicación</h2>
@@ -128,9 +138,6 @@
 
       <button type="submit">Enviar</button>
     </form>
-
-    <!-- Botón para llevar a la ubicación actual -->
-    <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
   </div>
 
   <script>
@@ -176,4 +183,48 @@
       };
 
       // Enviar los datos a Google Sheets (o cualquier otra base de datos)
-     
+      fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(data => {
+        alert('Datos enviados con éxito');
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+
+    // Función para obtener la ubicación actual
+    function obtenerUbicacion() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(position) {
+          var lat = position.coords.latitude;
+          var lng = position.coords.longitude;
+
+          // Mover el mapa a la ubicación actual
+          map.setView([lat, lng], 13);
+
+          // Colocar un marcador en la ubicación actual
+          if (marker) {
+            marker.setLatLng([lat, lng]);
+          } else {
+            marker = L.marker([lat, lng]).addTo(map);
+          }
+
+          // Actualizar los campos de latitud y longitud
+          document.getElementById('latitud').value = lat;
+          document.getElementById('longitud').value = lng;
+        });
+      } else {
+        alert('Geolocalización no está soportada en este navegador.');
+      }
+    }
+  </script>
+
+</body>
+</html>
