@@ -169,6 +169,13 @@
         <option value="Vehículo de Gran Porte">Vehículo de Gran Porte</option>
       </select>
 
+      <label for="capacidad">Capacidad de Rodado:</label>      
+      <select id="capacidad" name="capacidad" required>
+        <option value="">Seleccione...</option>
+        <option value="Si">Si</option>
+        <option value="No">No</option>
+      </select>
+
       <!-- Estado del vehículo -->
       <label for="estado">Estado:</label>
       <select id="estado" name="estado" required>
@@ -180,7 +187,7 @@
 
       <!-- Observaciones -->
       <label for="observaciones">Observaciones:</label>
-      <textarea id="observaciones" name="observaciones" required></textarea>
+      <textarea id="observaciones" name="observaciones" ></textarea>
 
       <!-- Campos ocultos para latitud y longitud -->
       <input type="hidden" id="latitud" name="latitud">
@@ -244,6 +251,7 @@
       var observaciones = document.getElementById('observaciones').value;
       var latitud = document.getElementById('latitud').value;
       var longitud = document.getElementById('longitud').value;
+      var capacidad = document.getElementById('capacidad').value;
       var fecha = formattedDate;
 
       // Validar campos obligatorios
@@ -261,7 +269,8 @@
         "Observaciones": observaciones,
         "Latitud": latitud,
         "Longitud": longitud,
-        "Fecha de Carga": fecha
+        "Fecha de Carga": fecha,
+        "Capacidad-Rodado": capacidad
       };
 
       // Enviar los datos a la API
