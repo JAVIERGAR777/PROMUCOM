@@ -7,7 +7,7 @@
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" />
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
   <style>
-    /* Reset de margenes y paddings */
+    /* Reset de márgenes y paddings */
     * {
       margin: 0;
       padding: 0;
@@ -146,38 +146,53 @@
     <button id="llevarmeUbicacion" type="button" onclick="obtenerUbicacion()">Llevarme a mi Ubicación</button>
 
     <form class="formulario" id="formulario">
-      <h2>Formulario de Ubicación</h2>
-      <label for="incidente">Seleccione Clase de Incidente:</label>
-      <select id="incidente" name="incidente" required>
+      <h2>Formulario de Carga</h2>
+
+      <!-- Condición del vehículo -->
+      <label for="condicion">Condición del vehículo:</label>
+      <select id="condicion" name="condicion" required>
         <option value="">Seleccione...</option>
-        <option value="Basural">Basural</option>
-        <option value="Auto Quemado">Auto Quemado</option>
-        <option value="Vandalismo">Vandalismo</option>
-        <option value="Punto Inseguro">Punto Inseguro</option>
-        <option value="Luminaria">Luminaria</option>
-        <option value="Poda de Arboles">Poda de Arboles</option>
+        <option value="Vehículo Abandonado">Vehículo Abandonado</option>
+        <option value="Vehículo Quemado">Vehículo Quemado</option>
       </select>
 
-      <input type="hidden" id="incidenteHidden" name="Incidente">
+      <!-- Dominio (opcional) -->
+      <label for="dominio">Dominio (opcional):</label>
+      <input type="text" id="dominio" name="dominio" placeholder="Ingrese el dominio del vehículo">
 
-      <label for="latitud" style="display: none;">Latitud</label>
-      <input type="text" id="latitud" name="latitud" readonly style="display: none;">
+      <!-- Clase del vehículo -->
+      <label for="clase">Clase:</label>
+      <select id="clase" name="clase" required>
+        <option value="">Seleccione...</option>
+        <option value="Auto">Auto</option>
+        <option value="Moto">Moto</option>
+        <option value="Vehículo de Gran Porte">Vehículo de Gran Porte</option>
+      </select>
 
-      <label for="longitud" style="display: none;">Longitud</label>
-      <input type="text" id="longitud" name="longitud" readonly style="display: none;">
+      <!-- Estado del vehículo -->
+      <label for="estado">Estado:</label>
+      <select id="estado" name="estado" required>
+        <option value="">Seleccione...</option>
+        <option value="Completo">Completo</option>
+        <option value="Faltante de Autopartes">Faltante de Autopartes</option>
+        <option value="Desguazado">Desguazado</option>
+      </select>
 
-      <label for="observaciones">Observaciones</label>
+      <!-- Observaciones -->
+      <label for="observaciones">Observaciones:</label>
       <textarea id="observaciones" name="observaciones" required></textarea>
 
-      <label for="foto">Adjuntar Foto</label>
-      <input type="file" id="foto" name="foto" accept="image/*">
-      <img id="imagePreview" class="image-preview" alt="Vista previa de la imagen">
+      <!-- Campos ocultos para latitud y longitud -->
+      <input type="hidden" id="latitud" name="latitud">
+      <input type="hidden" id="longitud" name="longitud">
 
+      <!-- Botón de enviar -->
       <button type="submit">Enviar</button>
     </form>
   </div>
 
   <script>
+    // Configuración del mapa
     var map = L.map('map').setView([-34.945410788228784, -57.97428572760069], 13);
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors'
@@ -194,47 +209,7 @@
       document.getElementById('longitud').value = e.latlng.lng;
     });
 
-    document.getElementById('incidente').addEventListener('change', function() {
-      var selectedValue = this.value;
-      document.getElementById('incidenteHidden').value = selectedValue;
-    });
-
-    document.getElementById('formulario').addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      var incidente = document.getElementById('incidenteHidden').value;
-      var latitud = document.getElementById('latitud').value;
-      var longitud = document.getElementById('longitud').value;
-      var observaciones = document.getElementById('observaciones').value;
-
-      if (!incidente || !latitud || !longitud || !observaciones) {
-        alert('Por favor, complete todos los campos antes de enviar.');
-        return;
-      }
-
-      var data = {
-        "Incidente": incidente,
-        "Latitud": latitud,
-        "Longitud": longitud,
-        "Observaciones": observaciones
-      };
-
-      fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(data)
-      })
-      .then(response => response.json())
-      .then(responseData => {
-        alert('Datos enviados con éxito');
-      })
-      .catch(error => {
-        alert('Hubo un error al enviar los datos.');
-      });
-    });
-
+    // Función para obtener la ubicación actual
     function obtenerUbicacion() {
       if (navigator.geolocation) {
         navigator.geolocation.getCurrentPosition(function(position) {
@@ -254,16 +229,59 @@
       }
     }
 
-    document.getElementById('foto').addEventListener('change', function(event) {
-      var reader = new FileReader();
-      reader.onload = function() {
-        var imagePreview = document.getElementById('imagePreview');
-        imagePreview.src = reader.result;
-        imagePreview.style.display = 'block';
+    // Envío del formulario
+    document.getElementById('formulario').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      let currentDate = new Date();
+      let formattedDate = currentDate.toLocaleString(); 
+
+      // Obtener los valores del formulario
+      var condicion = document.getElementById('condicion').value;
+      var dominio = document.getElementById('dominio').value;
+      var clase = document.getElementById('clase').value;
+      var estado = document.getElementById('estado').value;
+      var observaciones = document.getElementById('observaciones').value;
+      var latitud = document.getElementById('latitud').value;
+      var longitud = document.getElementById('longitud').value;
+      var fecha = formattedDate;
+
+      // Validar campos obligatorios
+      if (!condicion || !clase || !estado || !observaciones || !latitud || !longitud) {
+        alert('Por favor, complete todos los campos obligatorios antes de enviar.');
+        return;
+      }
+
+      // Crear el objeto de datos
+      var data = {
+        "Condición": condicion,
+        "Dominio": dominio,
+        "Clase": clase,
+        "Estado": estado,
+        "Observaciones": observaciones,
+        "Latitud": latitud,
+        "Longitud": longitud,
+        "Fecha de Carga": fecha
       };
-      reader.readAsDataURL(event.target.files[0]);
+
+      // Enviar los datos a la API
+      fetch('https://api.sheetbest.com/sheets/e407f489-9627-489e-ba4f-941bdb53ea8a', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(data)
+      })
+      .then(response => response.json())
+      .then(responseData => {
+        alert('Datos enviados con éxito');
+        console.log('Respuesta de la API:', responseData); // Para depuración
+      })
+      .catch(error => {
+        alert('Hubo un error al enviar los datos.');
+        console.error('Error:', error); // Para depuración
+      });
     });
   </script>
-
 </body>
 </html>
